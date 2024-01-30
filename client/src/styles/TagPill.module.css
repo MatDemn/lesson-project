@@ -1,0 +1,13 @@
+.content {
+    background-color: #3c39ea;
+    border-radius: 5px;
+    text-align: center;
+    width: auto;
+    max-width: 150px;
+    min-width: 50px;
+    padding-left: 5px;
+    padding-right: 5px;
+    overflow: hidden;
+    vertical-align: center;
+    line-height: 25px;
+}

@@ -1,0 +1,15 @@
+.container {
+    background-color: aqua;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.navButton {
+    background-color: red;
+    width: 30px;
+    text-align: center;
+    line-height: 20px;
+    padding:5px;
+}

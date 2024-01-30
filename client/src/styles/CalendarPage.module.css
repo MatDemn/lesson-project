@@ -1,0 +1,22 @@
+.busyCell {
+    background: "red";
+}
+
+.freeCell {
+    background: "green";
+}
+
+td {
+    transition: .3s;
+    width: 150px;
+    height: 90px;
+    vertical-align: middle;
+}
+
+td:hover {
+    
+}
+
+.calendarLoader {
+    
+}

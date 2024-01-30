@@ -1,0 +1,10 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+namespace Express {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    interface User {
+      id: int,
+      isAdmin: boolean,
+    }
+}
+
+

@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Merriweather:wght@300&family=Nunito+Sans:opsz,wght@6..12,200&display=swap');
+
+.mainContainer {
+    display: flex;
+    width: 100%;
+    height: 110px;
+    background-color: #161816;
+}
+
+.mainBar {
+    margin-left: auto;
+    margin-right: auto;
+    width: 75vw;
+    min-width: 700px;
+    max-width: 900px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logoBrandContainer {
+    width: 150px;
+    line-height: 35px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 44px;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    color: white;
+    text-align: center;
+    cursor: pointer;
+}
+
+.hamburgerButton{
+    height: 50px;
+    width: 50px;
+    display: flex;
+    align-items: center;
+    transition: .3s;
+    border-radius: 15px;
+}
+
+.hamburgerButton:hover {
+    background-color: #1f221f;
+}
+
+.hamburgerMenu {
+    display: flex;
+    justify-content: column;
+    align-items: center;
+    position: absolute;
+    top: 110px;
+    right: 0;
+    width: 150px;
+    background-color: #1f221f;
+    z-index: 2;
+    padding: 5px;
+}
+
+.hamburgerMenu ul {
+    list-style-type: none;
+    width: 100%;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.hamburgerMenu ul li {
+    transition: 0.3s;
+}
+
+.hamburgerMenu ul li:hover {
+    background-color: #161816;
+}
+
+.hamburgerMenuItem {
+    
+}
+
+.navigationBar {
+    width: 35%;
+    min-width: 450px;
+    height: 100%;
+}
+
+.navigationBar ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0px;
+    height: 100%;
+}
+
+.navigationBar ul li {
+    padding: 5px;
+    height: 100%;
+    width: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: .3s;
+}
+
+.navigationBar ul li:hover {
+    background-color: #1f221f;
+}
+
+
+.userCard {
+    display: flex;
+    height: 100%;
+    justify-content: right;
+    align-items: center;
+}
+
+.adminButton {
+    background-color: red;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}

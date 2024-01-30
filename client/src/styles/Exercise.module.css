@@ -1,0 +1,93 @@
+.exerciseCard {
+    background-color: grey;
+    padding: 10px;
+    position: relative;
+}
+
+.topBar {
+    width: 100%;
+    background-color: blue;
+    display: flex;
+    justify-content: space-between;
+}
+
+.title {
+    background-color: lime;
+    font-size: 2.5em;
+    font-weight: bold;
+    width: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.difficulty {
+    background-color: red;
+    padding: 15px;
+}
+
+.description {
+    width: 100%;
+    background-color: aqua;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.courseType {
+
+}
+
+.createdAt {
+    padding: 15px;
+    margin-top: 15px;
+    background-color: red;
+}
+
+.image {
+    background-color: pink;
+    max-height: 40vh;
+    min-height: 0px;
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.image img {
+    height: 100%;
+    max-width: 100%;
+}
+
+.rightAnwser {
+    margin-top: 15px;
+    background-color: red;
+    padding: 15px;
+}
+
+.rightAnwserContent {
+    background-color: blueviolet;
+}
+
+.tags {
+    margin-top: 15px;
+    display: flex;
+    gap: 5px;
+}
+
+.id {
+
+}
+
+.adminBar {
+    background-color: pink;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+#editExercise {
+    
+}
+
+#deleteExercise {
+    background-color: red;
+}
+
