@@ -1,5 +1,6 @@
 import express from 'express'
 import * as CalendarController from '../controllers/calendar';
+import { requiresAuth } from '../middleware/auth';
 //import { requiresAuth } from '../utils/assertIsDefined';
 
 const router = express.Router()
@@ -7,15 +8,17 @@ const router = express.Router()
 //Read
 router.get('/', CalendarController.getAllCurrentWeekEvents );
 
-router.get('/:discordId', CalendarController.getCurrentWeekEvents);
+router.get('/:weekIndex', CalendarController.getCurrentWeekEvents);
+
+router.get('/:beginDate/:endDate', CalendarController.checkForFreeSlot);
 
 // Create
-//router.post('/', ExerciseController.createExercise);
+router.post('/', CalendarController.createEvent);
 
 // Update
 //router.patch('/:id', ExerciseController.updateExercise);
 
 // Delete
-//router.delete('/:id', ExerciseController.deleteExercise);
+router.delete('/:id/:startDate', requiresAuth, CalendarController.deleteEvent);
 
 export default router;

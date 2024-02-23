@@ -17,7 +17,7 @@ export const getExercises: RequestHandler<GetExercisesParams, unknown, unknown, 
         }
         const skipCount = (pageId-1)*elemCount;
         const exercise = await ExerciseModel.find().skip(skipCount).limit(elemCount).exec();
-        const exerciseCount = await ExerciseModel.find().skip(skipCount).limit(elemCount).count({}).exec();
+        const exerciseCount = await ExerciseModel.find().count({}).exec();
         res.status(200).json({"total": exerciseCount, "exercises" : exercise});
     }
     catch(error) {
@@ -111,8 +111,6 @@ export const updateExercise: RequestHandler<UpdateExerciseParams, unknown, Updat
     const newTags = req.body.tags || [];
     
     try {
-        console.log("id is:");
-        console.log(id);
         if(!mongoose.isValidObjectId(id)) {
             throw createHttpError(400, "Invalid exercise id");
         }
@@ -151,7 +149,6 @@ export const updateExercise: RequestHandler<UpdateExerciseParams, unknown, Updat
 export const deleteExercise: RequestHandler = async (req,res,next) => {
     const id = req.params.id;
     try {
-        console.log("here1!");
         if(!mongoose.isValidObjectId(id)) {
             throw createHttpError(400, "Invalid exercise id");
         }

@@ -11,9 +11,11 @@ export default cleanEnv(process.env, {
     SESSION_SECRET: str(),
     GOOGLE_APIKEY: str(),
     GOOGLE_CALENDARID: str(),
+    GOOGLE_SERVICEKEY_PATH: str(),
     DISCORD_AUTH_URL: str(),
     AWS_REGION: str(),
     AWS_BUCKETNAME: str(),
     AWS_ACCESS_KEY: str(),
     AWS_ACCESS_SECRET: str(),
+    reCAPTCHA_SECRET: str(),
 });

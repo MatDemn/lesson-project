@@ -5,6 +5,7 @@ import exerciseRouter from "./routes/exercise";
 import discordAuthRouter from "./routes/discordAuth";
 import calendarRouter from "./routes/calendar";
 import imageRouter from "./routes/image";
+import recaptchaRouter from "./routes/reCaptcha";
 import createHttpError, {isHttpError} from "http-errors";
 import session from 'express-session';
 import passport from 'passport';
@@ -49,6 +50,7 @@ app.use("/api/exercises", exerciseRouter);
 app.use("/auth/discord", discordAuthRouter);
 app.use("/api/calendar", calendarRouter);
 app.use("/api/image", imageRouter);
+app.use("/api/recaptcha", recaptchaRouter);
 
 app.use((req,res,next) => {
     next(createHttpError(404, "Endpoint not found"));
