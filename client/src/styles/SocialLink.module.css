@@ -1,0 +1,7 @@
+.hoverWhite {
+    transition: .3s;
+}
+
+.hoverWhite:hover {
+    color: white !important;
+}

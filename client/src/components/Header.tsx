@@ -9,7 +9,7 @@ import LoggedOutCard from "./partials/loggedOutCard";
 import { Container, Nav, Navbar } from "react-bootstrap";
 import FaButton from "./singleComponents/faButton";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faDumbbell, faCalendar, faPhone, faAddressCard, faBars } from '@fortawesome/free-solid-svg-icons';
+import { faDumbbell, faCalendar, faSearch, faAddressCard, faBars } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
@@ -42,8 +42,8 @@ const Header = ({loggedUser, onLoginClicked, onLogoutSuccessful} : HeaderProps) 
             <ul>
               <li><FaButton iconDef={faDumbbell} className={navButtonStyles.navButton} content="Zadania" faSize="2x" onClick={() => routeChange("/exercises")}/></li>
               <li><FaButton iconDef={faCalendar} className={navButtonStyles.navButton} content="Kalendarz" faSize="2x" onClick={() => routeChange("/calendar")}/></li>
-              <li><FaButton iconDef={faPhone} className={navButtonStyles.navButton} content="Kontakt" faSize="2x" onClick={() => routeChange("/contact")}/></li>
               <li><FaButton iconDef={faAddressCard} className={navButtonStyles.navButton} content="O mnie" faSize="2x" onClick={() => routeChange("/about")}/></li>
+              <li><FaButton iconDef={faSearch} className={navButtonStyles.navButton} content="Szukaj" faSize="2x" onClick={() => routeChange("/search")}/></li>
             </ul>
           </div>
           <div className={styles.userCard+" d-none d-xl-block"}>
@@ -64,8 +64,8 @@ const Header = ({loggedUser, onLoginClicked, onLogoutSuccessful} : HeaderProps) 
               <ul>
                 <li><FaButton iconDef={faDumbbell} className={navButtonStyles.navButton+" "+styles.hamburgerMenuItem} content="Zadania" faSize="2x"  onClick={() => routeChange("/exercises")}/></li>
                 <li><FaButton iconDef={faCalendar} className={navButtonStyles.navButton+" "+styles.hamburgerMenuItem} content="Kalendarz" faSize="2x" onClick={() => routeChange("/calendar")}/></li>
-                <li><FaButton iconDef={faPhone} className={navButtonStyles.navButton+" "+styles.hamburgerMenuItem} content="Kontakt" faSize="2x" onClick={() => routeChange("/contact")}/></li>
                 <li><FaButton iconDef={faAddressCard} className={navButtonStyles.navButton+" "+styles.hamburgerMenuItem} content="O mnie" faSize="2x" onClick={() => routeChange("/about")}/></li>
+                <li><FaButton iconDef={faSearch} className={navButtonStyles.navButton+" "+styles.hamburgerMenuItem} content="Szukaj" faSize="2x" onClick={() => routeChange("/search")}/></li>
               </ul>
             </div>
           }

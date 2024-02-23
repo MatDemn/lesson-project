@@ -5,11 +5,16 @@
     z-index: 1;
     left: 0px;
     border-radius: 5px;
-    
+    overflow: inherit;
+}
+
+.mainContent {
+    position: relative;
+    height: 100%;
+    width: 100%;
 }
 
 .eventBusy {
-    background-color: rgba(255, 0, 0, 1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -23,8 +28,8 @@
 }
 
 .eventReserved {
-    background-color: rgb(43, 255, 0);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
 }
@@ -34,5 +39,30 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    content: "";
+}
+
+.eventContent {
+    padding: 5px;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.editBar {
+    position: absolute;
+    text-align: end;
+    width: 100%;
+    padding: 5px;
+    bottom: 0;
+    right: 0;
+}
+
+.controlButton {
+    cursor: pointer;
+    width: 15px;
+    height: 15px;
+    border-radius: 5px;
 }

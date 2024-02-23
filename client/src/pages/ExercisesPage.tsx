@@ -4,7 +4,7 @@ import { Exercise as ExerciseModel } from '../models/exercise';
 import * as ExercisesApi from '../network/exercises_api';
 import Exercise from '../components/Exercise';
 import styles from '../styles/ExercisesPage.module.css';
-import AddEditExerciseDialog from '../components/AddEditExerciseDialog';
+import AddEditExerciseDialog from '../components/dialogs/AddEditExerciseDialog';
 import ExerciseBar from '../components/partials/ExerciseBar';
 import PaginatorBar from '../components/partials/PaginatorBar';
 import { Loader } from 'three';
@@ -31,7 +31,7 @@ const ExercisesPage = () => {
       }
     }
     loadExercises();
-  }, []);
+  }, [pageId]);
 
   const exampledesc = 
   "This is some example description, very very long one: \
@@ -56,16 +56,18 @@ const ExercisesPage = () => {
   return ( 
     <>
     {isExercisesLoading && <Spinner />}
-      {exercises.map(exerc => (
-        <ExerciseBar 
-          id={exerc._id} 
-          title={exerc.title} 
-          difficulty={exerc.difficulty} 
-          description={exerc.description}
-          tags={exerc.tags || []}
-        />
-      ))}
-      <PaginatorBar currentPageId={pageId} totalPageCount={pageCount}/> 
+    {!isExercisesLoading && exercises.map(exerc => (
+      <ExerciseBar 
+        id={exerc._id} 
+        title={exerc.title} 
+        difficulty={exerc.difficulty} 
+        description={exerc.description}
+        tags={exerc.tags || []}
+      />
+    ))}
+    {!isExercisesLoading && 
+      <PaginatorBar currentPageId={pageId} totalPageCount={pageCount} changePage={setPageId}/> 
+    }
     </>
   );
 }

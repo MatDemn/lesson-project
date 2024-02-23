@@ -24,7 +24,7 @@ body {
   min-width: 700px;
   max-width: 900px;
   margin-top: 75px;
-  min-height: 50vh;
+  min-height: 20vh;
   text-align: justify;
   padding: 25px;
 }

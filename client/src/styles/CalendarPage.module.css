@@ -6,6 +6,10 @@
     background: "green";
 }
 
+tr:last-child {
+    overflow: hidden;
+}
+
 td {
     transition: .3s;
     width: 150px;
@@ -19,4 +23,14 @@ td:hover {
 
 .calendarLoader {
     
+}
+
+.navigation {
+    display: flex;
+    justify-content: end;
+}
+
+.newEventForm {
+    padding: 5px;
+    width: 100%;
 }

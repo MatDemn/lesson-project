@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Merriweather:wght@300&family=Nunito+Sans:opsz,wght@6..12,200&display=swap');
+
+
+.container {
+    margin-top: 15px;
+    height: 2em;
+    padding: 1em;
+    
+}
+
+.brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 44px;
+}

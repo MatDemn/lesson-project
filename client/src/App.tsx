@@ -13,6 +13,10 @@ import VantaBar from './components/VantaBar';
 import NotFoundPage from './pages/NotFoundPage';
 import ExercisePage from './pages/ExercisePage';
 import AdminPage from './pages/AdminPage';
+import Footer from './components/Footer';
+import SearchPage from './pages/SearchPage';
+import AboutMePage from './pages/AboutMePage';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   const [loggedInUser, setLoggedInUser] = useState<DiscordUser|null>(null);
@@ -21,7 +25,6 @@ function App() {
     async function fetchLoggedInUser() {
       try {
         const user = await DiscordUserApi.fetchAuthenticatedUser();
-        console.log(`USER: ${user}`);
         setLoggedInUser(user);
       } catch (error) {
         console.log(error);
@@ -31,53 +34,66 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      <Header 
-        loggedUser={loggedInUser}
-        onLoginClicked={DiscordUserApi.loginWithDiscord}
-        onLogoutSuccessful={() => setLoggedInUser(null)}
-      />
-      
-      <div className='mainContainer'>
-        <div className='content'>
-          
-            <Routes>
-              <Route
-                path='/'
-                element={<HomepagePage />}
-              />
-              <Route
-                path='/exercises/:id'
-                element={<ExercisePage loggedUser={loggedInUser} />}
-              />
-              <Route
-                path='/exercises'
-                element={<ExercisesPage />}
-              />
-              <Route 
-                path='/forbidden'
-                element={<ForbiddenPage />}
-              />
-              <Route 
-                path='/other'
-                element={<Other />}
-              />
-              <Route 
-                path='/calendar'
-                element={<Calendar loggedUser={loggedInUser} />}
-              />
-              <Route
-                path='/admin'
-                element={<AdminPage />}
-              />
-              <Route
-                path='*'
-                element={<NotFoundPage />}
-              />
-            </Routes>          
-        </div>
-      </div> 
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+        <Header 
+          loggedUser={loggedInUser}
+          onLoginClicked={DiscordUserApi.loginWithDiscord}
+          onLogoutSuccessful={() => setLoggedInUser(null)}
+        />
+
+        <div className='mainContainer'>
+          <div className='content'>
+            
+              <Routes>
+                <Route
+                  path='/'
+                  element={<HomepagePage />}
+                />
+                <Route
+                  path='/exercises/:id'
+                  element={<ExercisePage loggedUser={loggedInUser} />}
+                />
+                <Route
+                  path='/exercises'
+                  element={<ExercisesPage />}
+                />
+                <Route 
+                  path='/forbidden'
+                  element={<ForbiddenPage />}
+                />
+                <Route 
+                  path='/other'
+                  element={<Other />}
+                />
+                <Route 
+                  path='/calendar'
+                  element={<Calendar loggedUser={loggedInUser} />}
+                />
+                <Route
+                  path="/about"
+                  element={<AboutMePage />}
+                />
+                <Route 
+                  path='/search'
+                  element={<SearchPage />}
+                />
+                <Route
+                  path='/admin'
+                  element={<AdminPage />}
+                />
+                <Route
+                  path='*'
+                  element={<NotFoundPage />}
+                />
+              </Routes>   
+              <Footer /> 
+              <ToastContainer />      
+          </div>
+        </div> 
+      </BrowserRouter>
+    
+    </>
   );
 }
 

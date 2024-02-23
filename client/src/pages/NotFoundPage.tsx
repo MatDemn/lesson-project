@@ -1,8 +1,10 @@
+import ErrorCode from "../components/partials/ErrorCode";
+
 const NotFoundPage = () => {
     return ( 
-        <div>
-            404 not found!
-        </div> 
+        <>
+            <ErrorCode errorCodeNumber={404} errorDescription={"Nie znaleziono tego zasobu!"} /> 
+        </> 
     );
 }
  

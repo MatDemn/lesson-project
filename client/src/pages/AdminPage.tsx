@@ -1,25 +1,38 @@
 import { Button } from "react-bootstrap";
-import AddEditExerciseDialog from "../components/AddEditExerciseDialog";
+import AddEditExerciseDialog from "../components/dialogs/AddEditExerciseDialog";
 import React from "react";
+import { DiscordUser } from "../models/discordUser";
+import { Navigate } from "react-router-dom";
 
-const AdminPage = () => {
+interface AdminPageProps {
+    loggedUser?: DiscordUser | null,
+}
+
+const AdminPage = ({loggedUser} : AdminPageProps) => {
     
     const [showAddExerciseDialog, setShowAddExerciseDialog] = React.useState(false);
 
     return ( 
-    <>
-        Some example admin content...
-        <Button className="mb-4" onClick={() => setShowAddExerciseDialog(true)}>New exercise</Button>
+        <>
+        {
+            !loggedUser?.isAdmin ?
+            <Navigate to="/forbidden" replace /> :
 
-        { showAddExerciseDialog && 
-            <AddEditExerciseDialog 
-                onDismiss={() => setShowAddExerciseDialog(false)}
-                onExerciseSaved={(exercise) => {
-                    setShowAddExerciseDialog(false);
-                }}
-            />
-            }
-    </> 
+            <>
+                Some example admin content...
+                <Button className="mb-4" onClick={() => setShowAddExerciseDialog(true)}>New exercise</Button>
+
+                { showAddExerciseDialog && 
+                    <AddEditExerciseDialog 
+                        onDismiss={() => setShowAddExerciseDialog(false)}
+                        onExerciseSaved={(exercise) => {
+                            setShowAddExerciseDialog(false);
+                        }}
+                    />
+                }
+            </> 
+        }
+        </>
     );
 }
  

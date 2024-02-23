@@ -1,9 +1,9 @@
 import { Button, Form, Modal } from "react-bootstrap";
-import {Exercise} from "../models/exercise";
+import {Exercise} from "../../models/exercise";
 import { useForm } from "react-hook-form";
-import { ExerciseInput } from "../network/exercises_api";
-import * as ExerciseApi from "../network/exercises_api"
-import * as ImageApi from "../network/image_api";
+import { ExerciseInput } from "../../network/exercises_api";
+import * as ExerciseApi from "../../network/exercises_api"
+import * as ImageApi from "../../network/image_api";
 import { useEffect } from "react";
 
 interface AddExerciseDialogProps {
@@ -37,7 +37,6 @@ const AddEditExerciseDialog = ({exerciseToEdit, onDismiss, onExerciseSaved}: Add
 
     async function onSubmit(input: ExerciseInputForm) {
         try {
-            console.log("control0");
             if(exerciseToEdit?.imagePath && (input.deleteImage || input.images.length > 0)) {
                 const imageId = exerciseToEdit.imagePath.split("/").pop();
                 if(!imageId) {
@@ -47,7 +46,6 @@ const AddEditExerciseDialog = ({exerciseToEdit, onDismiss, onExerciseSaved}: Add
                 await ImageApi.delImage(imageId);
                 console.log("after the response");
             }
-            console.log("Control1");
 
             let imageURL = exerciseToEdit?.imagePath || "";
             if(input.images.length !== 0) {
@@ -55,16 +53,10 @@ const AddEditExerciseDialog = ({exerciseToEdit, onDismiss, onExerciseSaved}: Add
                 // Secure URL for image
                 const secureURL = await ImageApi.getSecurePostURL();
                 
-                console.log("put0");
                 // PUT image to S3
                 const resp = await ImageApi.putImage(secureURL, input?.images[0]);
-                console.log("put1: ");
-                console.log(resp);
-                console.log("put:");
                 imageURL = secureURL.split('?')[0];
-                console.log("put2");
             }
-            console.log("Control2");
             // Save all other data to mongo
             const newExercise: ExerciseInput = {
                 title: input.title,
@@ -75,7 +67,6 @@ const AddEditExerciseDialog = ({exerciseToEdit, onDismiss, onExerciseSaved}: Add
                 rightAnswer: input.rightAnswer,
                 tags: input.tagsString.replace(/\s/g, '').split(","),
             }
-            console.log("Control3");
             let exerciseResponse : Exercise;
             if(exerciseToEdit) {
                 exerciseResponse = await ExerciseApi.updateExercise(exerciseToEdit._id, newExercise);
@@ -83,9 +74,7 @@ const AddEditExerciseDialog = ({exerciseToEdit, onDismiss, onExerciseSaved}: Add
             else {
                 exerciseResponse = await ExerciseApi.createExercise(newExercise);
             }
-            console.log("Control4");
             onExerciseSaved(exerciseResponse);
-            console.log("Control5");
             
         } catch (error) {
             console.error(error);
