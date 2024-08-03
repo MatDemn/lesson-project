@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Header from './components/Header';
 import ExercisesPage from './pages/ExercisesPage';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import ForbiddenPage from './pages/ForbiddenPage';
 import { DiscordUser } from './models/discordUser';
 import * as DiscordUserApi from './network/discordUser_api';
@@ -17,6 +17,7 @@ import Footer from './components/Footer';
 import SearchPage from './pages/SearchPage';
 import AboutMePage from './pages/AboutMePage';
 import { ToastContainer } from 'react-toastify';
+import { makeNotification } from './utils/toastNotification';
 
 function App() {
   const [loggedInUser, setLoggedInUser] = useState<DiscordUser|null>(null);
@@ -27,7 +28,9 @@ function App() {
         const user = await DiscordUserApi.fetchAuthenticatedUser();
         setLoggedInUser(user);
       } catch (error) {
-        console.log(error);
+        // User is not authenticated
+        //console.log(error);
+        //makeNotification(""+error, "Error");
       }
     }
     fetchLoggedInUser();
@@ -61,6 +64,14 @@ function App() {
                 <Route 
                   path='/forbidden'
                   element={<ForbiddenPage />}
+                />
+                <Route
+                  path="/auth/failure"
+                  element={<HomepagePage/>}
+                />
+                <Route
+                  path="/auth/success"
+                  element={<HomepagePage/>}
                 />
                 <Route 
                   path='/other'
