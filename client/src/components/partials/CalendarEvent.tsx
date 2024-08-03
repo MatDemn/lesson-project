@@ -23,11 +23,11 @@ const CalendarEvent = ({timeSlot,topSpace,heightSize,onDelete}: CalendarEventPro
     function getEventStyleClass(eventType: EventType): string {
         switch(eventType) {
             case EventType.Busy:
-                return calendarEventStyle.eventBusy + " bg-danger";
+                return calendarEventStyle.eventBusy + " bg-light-danger";
             case EventType.Choosen:
                 return calendarEventStyle.eventChoosen;
                 case EventType.Reserved:
-                return calendarEventStyle.eventReserved + " bg-warning";
+                return calendarEventStyle.eventReserved + " bg-light-warning";
             case EventType.Break:
                 return calendarEventStyle.eventBreak;
         }
@@ -39,17 +39,17 @@ const CalendarEvent = ({timeSlot,topSpace,heightSize,onDelete}: CalendarEventPro
             case EventType.Choosen:
             case EventType.Reserved:
             case EventType.Break:
-                return startTime.getHours().toString().padStart(2, '0')+":"+startTime.getMinutes().toString().padStart(2, '0')+"-"+endTime.getHours().toString().padStart(2, '0')+":"+endTime.getMinutes().toString().padStart(2, '0');
+                return startTime.getHours().toString().padStart(2, '0')+":"+startTime.getMinutes().toString().padStart(2, '0')+" "+endTime.getHours().toString().padStart(2, '0')+":"+endTime.getMinutes().toString().padStart(2, '0');
 
         }
         
     }
     
     return ( 
-        <div className={calendarEventStyle.container+" "+getEventStyleClass(timeSlot.eventType)+" d-flex justify-content-between"} style={{top: topSpace, height: heightSize}} >
+        <div className={calendarEventStyle.container+" "+getEventStyleClass(timeSlot.eventType)} style={{top: topSpace, height: heightSize}} >
             <div className={calendarEventStyle.mainContent}>
-                <div className={calendarEventStyle.eventContent + " text-dark"}>
-                    {getTimeContent(timeSlot)}
+                <div className={calendarEventStyle.eventContent + " text-dark text-center"}>
+                    {getTimeContent(timeSlot).split(" ").map(elem => <div className="w-100 rounded" key={elem}>{elem}</div>)}
                 </div>
                 {timeSlot.eventType === EventType.Reserved &&
                     <div className={calendarEventStyle.editBar}>
