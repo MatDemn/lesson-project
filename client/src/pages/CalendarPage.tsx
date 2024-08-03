@@ -20,6 +20,9 @@ import ReCAPTCHA from "react-google-recaptcha";
 import * as ReCaptchaApi from '../network/reCaptcha_api';
 import { Bounce, toast } from "react-toastify";
 import { makeNotification } from "../utils/toastNotification";
+import CalendarCellTitle from "../components/partials/CalendarCellTitle";
+import CalendarTable from "../components/calendar/CalendarTable";
+import LoggedOutCard from "../components/partials/loggedOutCard";
 
 interface CalendarPageProps {
     loggedUser: DiscordUser | null,
@@ -58,7 +61,7 @@ const CalendarPage = ({loggedUser} : CalendarPageProps) => {
         }
     });
 
-    const startHour = 16;
+    const startHour = 10;
     const endHour = 22;
     const startMinutes = 0;
     const endMinutes = 0;
@@ -69,7 +72,9 @@ const CalendarPage = ({loggedUser} : CalendarPageProps) => {
     const timeSlots = generateTimeSlots();
 
     const startDay = new Date();
-    const endDay = new Date();
+    const shiftAmount = (startDay.getDay()+6)%7;
+    startDay.setDate(startDay.getDate()-shiftAmount);
+    const endDay = new Date(startDay);
     startDay.setDate(startDay.getDate()+choosenWeekIndex*7)
     endDay.setDate(endDay.getDate()+choosenWeekIndex*7+6);
 
@@ -84,11 +89,11 @@ const CalendarPage = ({loggedUser} : CalendarPageProps) => {
         const endTotal = endHour*100 + endMinutes;
         let currentTotal = startHour*100+startMinutes;
         while(currentTotal<endTotal) {
-            let elem = `${currentHour}<sup>${(currentMinute < 10 ? "0" : "") + currentMinute}</sup>-`;
+            let elem = `${currentHour}:${(currentMinute < 10 ? "0" : "") + currentMinute}-`;
             currentMinute += timeStep;
             currentHour += (currentMinute / 60) | 0; // hacky way to convert float to int 
             currentMinute %= 60;
-            elem += `${currentHour}<sup>${(currentMinute < 10 ? "0" : "") + currentMinute}</sup>`;
+            elem += `${currentHour}:${(currentMinute < 10 ? "0" : "") + currentMinute}`;
             timeSlots.push(elem);
 
             currentTotal = currentHour*100 + currentMinute;
@@ -97,7 +102,7 @@ const CalendarPage = ({loggedUser} : CalendarPageProps) => {
     }
 
     function generateWeekDates(startDate: Date, dayCount: number): Date[] {
-        if(dayCount <= 0) return [startDate];
+        if(dayCount <= 0) return [startDate]; 
         
         let result: Date[] = [];
         for(let i = 0; i<dayCount; i++) {
@@ -109,6 +114,7 @@ const CalendarPage = ({loggedUser} : CalendarPageProps) => {
     }
 
     function createSlot(id: string, startDate: Date, endDate: Date, eventType: EventType) {
+
         const parentDate = new Date(startDate);
 
         const startTimeZero = new Date(startDay);
@@ -121,6 +127,7 @@ const CalendarPage = ({loggedUser} : CalendarPageProps) => {
         const slotDayStart = new Date(startDate);
         slotDayStart.setHours(startHour);
         slotDayStart.setMinutes(startMinutes);
+
         const uniqueId = slotDayIndex+"|"+Math.floor(((startDate.getTime()-slotDayStart.getTime()) / (1000*60) / timeStep));
         busySlots.set(uniqueId, {id: id, startTime: startDate, endTime: endDate, offsetPercent: getTopPercent(parentDate, startDate)+"%", slotSpan: getTimeStepSpan(startDate,endDate), eventType: eventType});
     }
@@ -135,7 +142,8 @@ const CalendarPage = ({loggedUser} : CalendarPageProps) => {
         return Math.round(difference/(60*1000)/timeStep * 100)/100*100;
     }
     function getTimeStepSpan(beginDate: Date, endDate: Date): number {
-        return (endDate.getTime() - beginDate.getTime())/(1000*3600);
+        const timeSpan = (endDate.getTime() - beginDate.getTime()) / (1000 * 60 * 60);
+        return timeSpan + (timeSpan > 1 ? (timeSpan-1)*0.017 : 0);
     }
 
     async function validateNewDate(newEventBeginDate: string, newEventBeginTime: string, newEventDuration: number): Promise<boolean> {
@@ -167,8 +175,8 @@ const CalendarPage = ({loggedUser} : CalendarPageProps) => {
             setAllLessonEvents(allLessonEvents.filter(event => event.id !== focusedEventId.id));
             setBusySlots(new Map<string,TimeSlot>(busySlots));
         } catch(error) {
+            makeNotification(""+error, "Error");
             console.error(error);
-            alert(error);
         }
     }
 
@@ -180,21 +188,24 @@ const CalendarPage = ({loggedUser} : CalendarPageProps) => {
     async function onSubmit(input: CalendarEventInputForm) {
         
         if(!loggedUser) {
-            setError("root.auth", {message: "Użytkownik nie jest zalogowany."});
+            //setError("root.auth", {message: "Użytkownik nie jest zalogowany."});
+            console.log("Użytkownik nie jest zalogowany.");
             makeNotification('Użytkownik nie jest zalogowany.', "Error");
             return;
         }
 
         const captchaValue = recaptcha.current?.getValue();
         if(!captchaValue) {
-            setError("root.recaptcha", {message: "Weryfikacja reCAPTCHA nie powiodła się."});
+            //setError("root.recaptcha", {message: "Weryfikacja reCAPTCHA nie powiodła się."});
+            console.log("Weryfikacja reCAPTCHA nie powiodła się.");
             makeNotification("Weryfikacja reCAPTCHA nie powiodła się.", "Error");
             return;
         }
 
         const response = await ReCaptchaApi.verifyReCAPTCHA(captchaValue);
         if(!response.success) {
-            setError("root.recaptcha", {message: "Weryfikacja reCAPTCHA nie powiodła się."});
+            //setError("root.recaptcha", {message: "Weryfikacja reCAPTCHA nie powiodła się."});
+            console.log("Weryfikacja reCAPTCHA nie powiodła się.");
             makeNotification("Weryfikacja reCAPTCHA nie powiodła się.", "Error");
             return;
         }
@@ -204,14 +215,18 @@ const CalendarPage = ({loggedUser} : CalendarPageProps) => {
         const endMins = endHour*60+endMinutes;
 
         if(totalEndMins > endMins) {
-            setError("root.busy", { message: "Zajęcia kończą się za późno."});
+            //setError("root.busy", { message: "Zajęcia kończą się za późno."});
+            console.log("Zajęcia kończą się za późno.")
             makeNotification("Zajęcia kończą się za późno.", "Error");
             return;
         }
+
+        recaptcha.current?.reset();
         
         const timeSlotValidation = await validateNewDate(input.eventDate, input.eventBeginTime, input.eventDuration)
         if(!timeSlotValidation) {
-            setError("root.busy", { message: "Termin nie jest dostępny."});
+            //setError("root.busy", { message: "Termin nie jest dostępny."});
+            console.log("Termin nie jest dostępny.");
             makeNotification("Termin nie jest dostępny.", "Error");
             return;
         }
@@ -229,7 +244,7 @@ const CalendarPage = ({loggedUser} : CalendarPageProps) => {
             onEventSaved(response);
         } catch(error) {
             console.log(error);
-            alert(error);
+            makeNotification(""+error, "Error");
         }
     }
 
@@ -242,14 +257,13 @@ const CalendarPage = ({loggedUser} : CalendarPageProps) => {
             try {
                 setEventsLoading(true);
                 const currentWeekLessonEvents = await CalendarApi.fetchCurrentWeek(choosenWeekIndex);
-
                 setAllLessonEvents(currentWeekLessonEvents);
                 busySlots.clear();
                 currentWeekLessonEvents.map(lessonEv => {createSlot(lessonEv.id, new Date(lessonEv.startDate), new Date(lessonEv.endDate), lessonEv.discordId === (loggedUser?.discordId || " ") ? EventType.Reserved : EventType.Busy); createBreak(new Date(lessonEv.endDate))});
             }
             catch(error) {
                 console.error(error);
-                alert(error);
+                makeNotification(""+error, "Error");
             }
             finally{
                 setEventsLoading(false);
@@ -259,35 +273,17 @@ const CalendarPage = ({loggedUser} : CalendarPageProps) => {
     }, [loggedUser, choosenWeekIndex, busySlots]);
 
     return ( 
-        <>
-            {eventsLoading ? <Spinner className={CalendarPageStyle.calendarLoader} /> :  
+        <>  
             <div>
-                <h1>Dostępność czasowa ({startDay.getDate()+"."+String(startDay.getMonth()+1).padStart(2, '0')}-{endDay.getDate()+"."+String(endDay.getMonth()+1).padStart(2, '0')}):</h1>
-                <Table striped bordered>
-                    <thead>
-                        <tr>
-                            {weekDates?.map((date, index) => <th key={"thead"+index.toString()} className={"text-center"}>{date.getDate()+"."+String(date.getMonth()+1).padStart(2, '0')+" ("+date.toLocaleDateString("pl", { weekday: 'short' })+")"}</th>)}
-                        </tr>
-                    </thead>
-                    
-                    <tbody>
-                        {
-                            timeSlots.map((slot,slotIndex) => (
-                            <tr key={"timeSlot "+slotIndex}>
-                                {weekDates.map((weekDate,weekIndex) => 
-                                    <td key={"weekDates"+weekIndex} className={"text-center"} style={{position: "relative"}}>
-                                        {<span>
-                                            <span dangerouslySetInnerHTML={{ __html: slot}}>
-                                            </span>
-                                            {busySlots.has(weekIndex+"|"+slotIndex) && 
-                                            <CalendarEvent topSpace={busySlots.get(weekIndex+"|"+slotIndex)!.offsetPercent} heightSize={(busySlots.get(weekIndex+"|"+slotIndex)!.slotSpan * 100*(60/timeStep)) + "%"} timeSlot={busySlots.get(weekIndex+"|"+slotIndex)!} onDelete={() => {onEventDelete(busySlots.get(weekIndex+"|"+slotIndex)!);}}/>}
-                                        </span>}
-                                    </td>)}
-                            </tr>))
-                        }
-                    </tbody>
-                </Table>
-                <div className={CalendarPageStyle.navigation}>
+                <h1>Terminy ({startDay.getDate()+"."+String(startDay.getMonth()+1).padStart(2, '0')}-{endDay.getDate()+"."+String(endDay.getMonth()+1).padStart(2, '0')}):</h1>
+                {eventsLoading ? 
+                <div className="position-relative">
+                    <CalendarTable weekDates={weekDates} timeSlots={timeSlots} busySlots={new Map()} timeStep={timeStep} onEventDelete={(arg0: TimeSlot) => {} } />
+                    <div className="position-absolute bg-trans-grey top-0 end-0 start-0 end-0 z-1 w-100 h-100"><Spinner className="position-absolute top-50 end-50 start-50 z-2"/></div>
+                </div> :
+                <CalendarTable weekDates={weekDates} timeSlots={timeSlots} busySlots={busySlots} timeStep={timeStep} onEventDelete={onEventDelete} />
+                }
+                <div className={CalendarPageStyle.navigation + " pt-1"}>
                     {choosenWeekIndex !== 0 &&
                         <Button onClick={() => changeWeek(-choosenWeekIndex)} className={"mx-1"}>{"Dzisiaj"}</Button>
                     }
@@ -299,16 +295,23 @@ const CalendarPage = ({loggedUser} : CalendarPageProps) => {
                         <Button onClick={() => changeWeek(1)}>{">"}</Button>
                     }
                 </div>
-                {!!loggedUser ? 
-                <>
-                <h1>Dodaj nowy termin:</h1>
-                <div className="d-flex">
-                    <div className="w-50">
+                <div className={CalendarPageStyle.bottomColumns}>
+                    <div className={CalendarPageStyle.leftColumn}>
+                        {!loggedUser &&
+                            <div className={CalendarPageStyle.formHide}>
+                                Zaloguj się, aby rezerwować terminy!
+                                <div>
+                                    <LoggedOutCard />    
+                                </div>
+                            </div>
+                        }
+                        <h1>Dodaj nowy termin:</h1>
                         <Form onSubmit={handleSubmit(onSubmit)} className={CalendarPageStyle.newEventForm} id="newEventForm">
                             <Form.Group className="mb-3">
                                 <Form.Label>Data</Form.Label>
                                 <Form.Select
                                     isInvalid={!!errors.eventDate}
+                                    disabled={isSubmitting || !loggedUser}
                                     {...register("eventDate", {
                                         required: "Wymagane",
                                     })}
@@ -324,6 +327,7 @@ const CalendarPage = ({loggedUser} : CalendarPageProps) => {
                                 <Form.Label>Godzina rozpoczęcia</Form.Label>
                                 <Form.Control
                                     isInvalid={!!errors.eventBeginTime}
+                                    disabled={isSubmitting || !loggedUser}
                                     type="time"
                                     step="60"
                                     min={startHour+":"+startMinutes.toString().padStart(2, "0")}
@@ -349,6 +353,7 @@ const CalendarPage = ({loggedUser} : CalendarPageProps) => {
                                 <Form.Label>Czas trwania</Form.Label>
                                 <Form.Select 
                                     isInvalid={!!errors.eventDuration}
+                                    disabled={isSubmitting || !loggedUser}
                                     {...register("eventDuration", 
                                     {
                                         required: "Wymagane",
@@ -380,14 +385,14 @@ const CalendarPage = ({loggedUser} : CalendarPageProps) => {
                             </Form.Group>
                             <Button 
                                 type="submit"
-                                disabled={isSubmitting}
+                                disabled={isSubmitting || !loggedUser}
                                 form="newEventForm">
                                     Dodaj termin
                             </Button>
                             
                         </Form>
                     </div>
-                    <div className="w-50 p-5">
+                    <div className={"p-5 " + CalendarPageStyle.rightColumn}>
                         <h5>Instrukcje:</h5>
                         <p>
                             Powyżej jest zamieszczony kalendarz na najbliższe 7 dni. 
@@ -398,20 +403,12 @@ const CalendarPage = ({loggedUser} : CalendarPageProps) => {
                         <h5>Legenda:</h5>
                         <p>
                             
-                            <p className="bg-danger p-1 text-dark rounded">Zajęty blok</p>
-                            <p className="bg-warning p-1 text-dark rounded">Twoje zajęcia</p>
+                            <p className="bg-light-danger p-1 text-dark rounded">Zajęty blok</p>
+                            <p className="bg-light-warning p-1 text-dark rounded">Twoje zajęcia</p>
                         </p>
                     </div>
                 </div>
-                </> :
-                <div>
-                    <h1>Musisz się zalogować żeby rezerwować terminy!</h1>
-                </div>
-                
-                }
-                <DevTool control={control} />
             </div>
-            }
             {showDeleteDialog && 
             <DeleteDialog 
                 content="Czy na pewno usunąć termin?" 

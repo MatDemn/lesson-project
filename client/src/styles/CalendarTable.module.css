@@ -1,0 +1,68 @@
+.busyCell {
+    background: "red";
+}
+
+.freeCell {
+    background: "green";
+}
+
+table {
+    overflow: hidden;
+}
+
+tr {
+    width: 100%;
+}
+
+tr:last-child {
+    overflow: hidden;
+}
+
+td {
+    transition: .3s;
+    height: 60px;
+    vertical-align: middle;
+}
+
+td:hover {
+    
+}
+
+.calendarLoader {
+    
+}
+
+.navigation {
+    display: flex;
+    justify-content: end;
+}
+
+.newEventForm {
+    padding: 5px;
+    width: 100%;
+}
+
+
+@media (min-width: 670px) {
+    .leftColumn {
+        width: 49%;
+        float: left;
+    }
+    
+    .rightColumn {
+        width: 49%;
+        float: left;
+    }
+}
+
+@media (max-width: 669px) {
+    .leftColumn {
+        width: 100%;
+        float: left;
+    }
+    
+    .rightColumn {
+        width: 100%;
+        float: left;
+    }
+}
