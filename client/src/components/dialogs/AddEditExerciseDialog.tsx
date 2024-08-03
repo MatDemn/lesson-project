@@ -5,6 +5,7 @@ import { ExerciseInput } from "../../network/exercises_api";
 import * as ExerciseApi from "../../network/exercises_api"
 import * as ImageApi from "../../network/image_api";
 import { useEffect } from "react";
+import { makeNotification } from "../../utils/toastNotification";
 
 interface AddExerciseDialogProps {
     exerciseToEdit?: Exercise,
@@ -78,7 +79,7 @@ const AddEditExerciseDialog = ({exerciseToEdit, onDismiss, onExerciseSaved}: Add
             
         } catch (error) {
             console.error(error);
-            alert(error);
+            makeNotification(""+error, "Error");
         }
     }
 
