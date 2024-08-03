@@ -11,9 +11,10 @@ const HomepagePage = () => {
             <h1 className={homePageStyles.logo + " text-center"}>Lesson Project</h1>
             <p>
                 <div>
-                    Witam Cię! Jeśli tu przybyłeś/aś zapewne chcesz zarezerwować termin
-                    kolejnych zajęć, przejrzeć zadania lub dowiedzieć się więcej o mnie. Rozgość się proszę,
-                    a w razie pytań wyślij mi zapytanie przez formularz.
+                Hej! Skoro już tu jesteś, to pewnie chcesz zarezerwować termin naszych zajęć, 
+                sprawdzić zadania lub dowiedzieć się czegoś więcej. 
+                Czuj się jak u siebie i w razie jakichkolwiek pytań, 
+                śmiało pisz do mnie poprzez „kontakt”, postaram się odpisać tak szybko jak mogę 😀
                 </div>
                 <div className="d-flex flex-column justify-items-center mt-5">
                     <Button><Link to="/about" className="text-light text-decoration-none">Kontakt</Link></Button>
