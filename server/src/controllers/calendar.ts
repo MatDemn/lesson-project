@@ -1,15 +1,15 @@
-import { calendar_v3 } from "googleapis";
+import {calendar_v3} from "@googleapis/calendar";
 import Schema$Events = calendar_v3.Schema$Events;
 import Schema$Event = calendar_v3.Schema$Event;
 import env from '../utils/validateEnv';
 import { RequestHandler } from "express";
 import { LessonEvent } from "../models/lessonEvent";
-import createHttpError = require("http-errors");
+import createHttpError from "http-errors";
 import { IPredicate } from "../utils/predicate";
 import { GoogleCalendar } from "../managers/googleServiceAccount";
 import { SimpleCache } from "../cache/cacheController";
 
-const eventsCache = new SimpleCache<Array<Schema$Event>>(50, 60_000);
+const eventsCache = new SimpleCache<Array<Schema$Event>>(45, env.ENV_TYPE == "DEV" ? 1000 : 300_000);
 
 function getNextKDaysDate(refDate: Date, K: number): Date {
     refDate.setDate(refDate.getDate() + K);
@@ -31,11 +31,13 @@ function filterApiResponse(items: calendar_v3.Schema$Event[], predicate: IPredic
 export const getAllCurrentWeekEvents : RequestHandler = async (req,res,next) => {
     try {
         const beginDate = new Date();
+        const shiftAmount = (beginDate.getDay()+6)%7;
+        beginDate.setDate(beginDate.getDate()-shiftAmount);
         beginDate.setDate(beginDate.getDate()-1);
         beginDate.setHours(0, 0, 0, 0);
 
         const schemaEvents: Schema$Events = 
-            (await GoogleCalendar.Instance.events.list(
+            (await (await GoogleCalendar.Instance()).events.list(
                 {
                     calendarId: env.GOOGLE_CALENDARID, 
                     timeMin: beginDate.toISOString(), 
@@ -64,28 +66,82 @@ export const getCurrentWeekEvents : RequestHandler<GetCurrentWeekEventsParams,un
         }
 
         const beginDate = new Date();
+        const shiftAmount = (beginDate.getDay()+6)%7;
+        beginDate.setDate(beginDate.getDate()-shiftAmount);
         beginDate.setDate(beginDate.getDate()+weekIndex*7);
         beginDate.setHours(0,0,0,0);
+        const timeZoneOffset = beginDate.getTimezoneOffset();
+        beginDate.setMinutes(beginDate.getMinutes()-timeZoneOffset);
         const endDate = new Date(beginDate);
         endDate.setDate(endDate.getDate()+7);
         const schemaEventItems: Schema$Event[] = [];
 
         const iterDate = new Date(beginDate);
-        while(iterDate <= endDate) {
+        while(iterDate < endDate) {
             const currKey = iterDate.toISOString().split('T')[0];
             let entry = eventsCache.get(currKey);
             if(!entry) {
                 const fetchedEventItems = 
-                (await GoogleCalendar.Instance.events.list(
+                (await (await GoogleCalendar.Instance()).events.list(
                     {
                         calendarId: env.GOOGLE_CALENDARID, 
                         timeMin: beginDate.toISOString(), 
                         timeMax: endDate.toISOString(),
+                        singleEvents: true,
                     })).data.items;
                 const groupedEvents = fetchedEventItems?.reduce((grouped, element) => {
+                    // recurring event
+                    if(element.recurrence) {
+                        const isWeekly = element.recurrence.filter(elem => elem.includes("RRULE:FREQ=WEEKLY")).length > 0;
+                        //const isMonthly = element.recurrence.filter(elem => elem.includes("RRULE:FREQ=MONTH")).length > 0;
+                        if(isWeekly) {
+                            const elemStart = new Date(element.start!.dateTime!);
+                            const elemEnd = new Date(element.end!.dateTime!);
+                            const delta = beginDate.getTime() - elemStart.getTime();
+                            if(delta > 0) {
+                                const deltaAdd = Math.ceil(delta/(1000*60*60*24*7))*(1000*60*60*24*7);
+                                elemStart.setTime(elemStart.getTime() + deltaAdd);
+                                element.start!.dateTime = elemStart.toISOString();
+                                elemEnd.setTime(elemEnd.getTime() + deltaAdd);
+                                element.end!.dateTime = elemEnd.toISOString();
+                            }
+                        }
+                    }
+                    
+                    if(element.recurringEventId) {
+                        // canceled event
+                        if(element.status === "cancelled") {
+                            const tempKey = element.originalStartTime!.dateTime!.split("T")[0];
+                            if(grouped.has(tempKey)) {
+                                grouped.set(tempKey, grouped.get(tempKey)!.filter(elem => elem.id != element.recurringEventId));
+                            }
+                            return grouped;
+                        }
+                        else if(element.status === "confirmed") {
+                            let tempKey = element.originalStartTime!.dateTime!.split("T")[0];
+                            if(grouped.has(tempKey)) 
+                            {
+                                grouped.set(tempKey, grouped.get(tempKey)!.filter(elem => elem.id != element.recurringEventId));
+                                grouped.get(tempKey)?.push(element);
+                            }
+                            else {
+                                tempKey = element.start!.dateTime!.split("T")[0];
+                                if(grouped.has(tempKey)) {
+                                    grouped.get(tempKey)?.push(element);
+                                }
+                                else {
+                                    grouped.set(tempKey, [element]);
+                                }
+                            }
+                            return grouped;
+                        }
+                        else {
+                            throw createHttpError(500, "Unknown error! "+ element.start);
+                        }
+                    }
                     const key = element.start?.dateTime?.split("T")[0];
                     if(!key) {
-                        throw createHttpError(500, "Unknown error!");
+                        throw createHttpError(500, "Unknown error! "+ element.start);
                     }
                     if(!grouped.has(key)) {
                         grouped.set(key, []);
@@ -93,13 +149,13 @@ export const getCurrentWeekEvents : RequestHandler<GetCurrentWeekEventsParams,un
                     grouped.get(key)!.push(element);
                     return grouped;
                 }, new Map<string,Array<Schema$Event>>());
-                
+
                 groupedEvents?.forEach((value, key) => {
                     eventsCache.set(key, value);
                 });
 
                 const subIterDate = new Date(beginDate);
-                while(subIterDate <= endDate) {
+                while(subIterDate < endDate) {
                     const subKey = subIterDate.toISOString().split("T")[0];
                     if(!eventsCache.has(subKey)) {
                         eventsCache.set(subKey, []);
@@ -108,7 +164,6 @@ export const getCurrentWeekEvents : RequestHandler<GetCurrentWeekEventsParams,un
                 }
 
                 entry = eventsCache.get(currKey);
-
                 if(entry) {
                     schemaEventItems.push(...entry);
                 }
@@ -118,8 +173,10 @@ export const getCurrentWeekEvents : RequestHandler<GetCurrentWeekEventsParams,un
             }
             iterDate.setDate(iterDate.getDate()+1);
         }
-        
-        res.status(200).json(filterApiResponse(schemaEventItems, () => true));
+        // Hide add discordids except for this user id events
+        const resultSchemaEventItems = structuredClone(schemaEventItems);
+        resultSchemaEventItems.map(element => element.summary = element.summary == req.user?.discordId ? element.summary : "???");
+        res.status(200).json(filterApiResponse(resultSchemaEventItems, () => true));
     }
     catch(error) {
         next(error);
@@ -136,7 +193,7 @@ export const checkForFreeSlot : RequestHandler = async (req,res,next) => {
         }
 
         const schemaEvents = 
-            (await GoogleCalendar.Instance.freebusy.query(
+            (await (await GoogleCalendar.Instance()).freebusy.query(
                 {
                     requestBody: {
                         timeMin: startDate.toISOString(), 
@@ -172,19 +229,21 @@ export const createEvent : RequestHandler<unknown,unknown,CreateEventBody,unknow
         const endDate = new Date(req.body.endDate);
         const discordId = req.body.discordId;
 
-        if(beginDate.getHours()<16 || beginDate.getHours()>22) {
-            throw createHttpError(400, "BeginDate should be between 16:00 and 22:00");
+        if(beginDate.getHours()<10 || beginDate.getHours()>22) {
+            throw createHttpError(400, "BeginDate should be between 10:00 and 22:00");
         }
-        if(endDate.getHours()<16 || endDate.getHours()>22) {
-            throw createHttpError(400, "EndDate should be between 16:00 and 22:00");
+        if(endDate.getHours()<10 || endDate.getHours()>22) {
+            throw createHttpError(400, "EndDate should be between 10:00 and 22:00");
         }
 
         // This is a hacky way
         // Today date is shifted forward 18 days and then abs value is calculated
         // Because of that, user cannot book event in the past or too distant one (more than 36 days from now)
         // Moreover, event has to be booked 3h in advance (3*60*60*1000 = 3h)
-        if(Math.abs(new Date().getTime() - beginDate.getTime() + 18*24*60*60*1000 + 3*60*60*1000) >= 18*24*60*60*1000 ||
-            Math.abs(new Date().getTime() - endDate.getTime() + 18*24*60*60*1000 + 3*60*60*1000) >= 18*24*60*60*1000) {
+        const _18Days = 18*24*60*60*1000;
+        const _3Hours = 3*60*60*1000;
+        if(Math.abs(new Date().getTime() - beginDate.getTime() + _18Days + _3Hours) >= _18Days ||
+            Math.abs(new Date().getTime() - endDate.getTime() + _18Days + _3Hours) >= _18Days) {
             throw createHttpError(400, "Date is too far in the future or past or dates are not 3h in advance from now.");
         }
 
@@ -198,7 +257,7 @@ export const createEvent : RequestHandler<unknown,unknown,CreateEventBody,unknow
             throw createHttpError(400, "Incorrect event duration.");
         }
 
-        const resp = await GoogleCalendar.Instance.events.insert({
+        const resp = await (await GoogleCalendar.Instance()).events.insert({
             calendarId: env.GOOGLE_CALENDARID, 
             // sendUpdates: "all",
             requestBody: {
@@ -239,7 +298,7 @@ export const deleteEvent : RequestHandler = async (req,res,next) => {
             throw createHttpError(400, "Invalid startDate.");
         }
 
-        const ev = await GoogleCalendar.Instance.events.get({
+        const ev = await (await GoogleCalendar.Instance()).events.get({
             calendarId: env.GOOGLE_CALENDARID,
             eventId: id
         });
@@ -248,7 +307,7 @@ export const deleteEvent : RequestHandler = async (req,res,next) => {
             throw createHttpError(403, "Forbidden access.");
         }
 
-        const resp = await GoogleCalendar.Instance.events.delete({
+        const resp = await (await GoogleCalendar.Instance()).events.delete({
             calendarId: env.GOOGLE_CALENDARID, 
             eventId: id,
             // sendUpdates: "all",
