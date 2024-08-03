@@ -8,6 +8,7 @@ import AddEditExerciseDialog from '../components/dialogs/AddEditExerciseDialog';
 import ExerciseBar from '../components/partials/ExerciseBar';
 import PaginatorBar from '../components/partials/PaginatorBar';
 import { Loader } from 'three';
+import { makeNotification } from '../utils/toastNotification';
 
 const ExercisesPage = () => {
 
@@ -27,31 +28,11 @@ const ExercisesPage = () => {
         setIsExerciseLoading(false);
       } catch (error) {
         console.error(error);
-        alert(error);
+        makeNotification(""+error, "Error");
       }
     }
     loadExercises();
   }, [pageId]);
-
-  const exampledesc = 
-  "This is some example description, very very long one: \
-  Lorem Ipsum is simply dummy text of the printing and typesetting industry. \
-  Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, \
-  when an unknown printer took a galley of type and scrambled it to make a type specimen book.\
-  It has survived not only five centuries, but also the leap into electronic typesetting, \
-  remaining essentially unchanged. It was popularised in the 1960s with the release \
-  of Letraset sheets containing Lorem Ipsum passages, \
-  and more recently with desktop publishing software like Aldus PageMaker including \
-  versions of Lorem Ipsum.\
-  This is some example description, very very long one: \
-  Lorem Ipsum is simply dummy text of the printing and typesetting industry. \
-  Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, \
-  when an unknown printer took a galley of type and scrambled it to make a type specimen book.\
-  It has survived not only five centuries, but also the leap into electronic typesetting, \
-  remaining essentially unchanged. It was popularised in the 1960s with the release \
-  of Letraset sheets containing Lorem Ipsum passages, \
-  and more recently with desktop publishing software like Aldus PageMaker including \
-  versions of Lorem Ipsum.";
 
   return ( 
     <>

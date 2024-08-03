@@ -3,6 +3,7 @@ import homePageStyles from "../styles/HomepagePage.module.css";
 import ExerciseBar from "../components/partials/ExerciseBar";
 import { Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import { makeNotification } from "../utils/toastNotification";
 
 const HomepagePage = () => {
     return (

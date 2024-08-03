@@ -15,8 +15,6 @@ const toastOptions: ToastOptions<unknown> = {
 }
 
 export function makeNotification(content: string, type: NotifType) {
-    toast.error(content, toastOptions);
-    
     switch(type) {
         case "Info":
             toast.info(content, toastOptions);

@@ -11,7 +11,7 @@ interface AdminPageProps {
 const AdminPage = ({loggedUser} : AdminPageProps) => {
     
     const [showAddExerciseDialog, setShowAddExerciseDialog] = React.useState(false);
-
+    console.log(loggedUser);
     return ( 
         <>
         {
