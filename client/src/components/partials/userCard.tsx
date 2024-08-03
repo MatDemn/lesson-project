@@ -9,26 +9,43 @@ import "../../styles/UserCard.module.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRightFromBracket, faCalendar } from '@fortawesome/free-solid-svg-icons';
 import FaButton from "../singleComponents/faButton";
+import { makeNotification } from "../../utils/toastNotification";
 
 interface UserCardProps {
     user: DiscordUser,
     onLogoutSuccessful: () => void,
+    className?: string,
 }
 
-const UserCard = ({user, onLogoutSuccessful}: UserCardProps) => {
+const UserCard = ({user, onLogoutSuccessful, className}: UserCardProps) => {
     async function logout() {
-        try {
-            await DiscordUserApi.logoutauthenticatedUser();
-            onLogoutSuccessful();
-        } catch (error) {
-            alert(error);
+        let response;
+        try{
+          response = await DiscordUserApi.logoutAuthenticatedUser();
+          console.log("Użytkownik wylogowany");
+          makeNotification("Użytkownik wylogowany", "Info");
+          onLogoutSuccessful();
         }
-    }
+        catch(error) {
+          switch(response?.status) {
+            case 401:
+            case 200:
+              console.log("Użytkownik wylogowany");
+              makeNotification("Użytkownik wylogowany", "Info");
+              onLogoutSuccessful();
+              break;
+            default:
+              console.log(response);
+              console.log(error);
+              makeNotification(""+error, "Error");
+          }
+        }
+      }
 
     const userAvatarSrc = getDiscordImage(user);
     return ( 
         <>
-            <div className={userCardStyles.navBar}>
+            <div className={userCardStyles.navBar + " " + className}>
                 <div className={userCardStyles.avatarButton}>
                     <div className={userCardStyles.profileInfo}>
                         <div className={userCardStyles.userName} >
