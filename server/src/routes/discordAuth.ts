@@ -1,42 +1,17 @@
 import express from 'express'
-import passport from 'passport';
 import * as DiscordAuthController from '../controllers/discordAuth';
 import { requiresAuth } from '../middleware/auth';
+//import passport from 'passport';
+//import env from "../utils/validateEnv";
 
 const router = express.Router()
 
 router.get('/', DiscordAuthController.authenticateUser);
 
-router.get('/redirect', passport.authenticate('discord', {
-    failureRedirect: '/auth/discord/authFailure',
-}),
-function (req, res) {
-    res.writeHead(302, { 'Location': 'http://localhost:3000/'});
-    res.end();
-});
+router.get('/redirect', DiscordAuthController.redirectAfterLogin);
 
 router.get('/user', requiresAuth, DiscordAuthController.getAuthenticatedUser); 
 
-router.get('/logout', requiresAuth, (req,res,next) => {
-    req.logout((err) => {
-        if(err) {
-            next(err);
-        }
-        else {
-            res.sendStatus(200);
-        } 
-    });
-});
-
-router.get('/authFailure', (req, res, next) => {
-    try{
-        res.writeHead(302, { 'Location': 'http://localhost:3000/'});
-        res.end();
-    }
-    catch(error) {
-        next(error);
-    }
-    
-});
+router.get('/logout', requiresAuth, DiscordAuthController.logoutUser);
 
 export default router;

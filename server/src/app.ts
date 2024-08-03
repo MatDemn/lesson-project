@@ -47,7 +47,7 @@ app.use(passport.session({pauseStream: true}));
 // );
 
 app.use("/api/exercises", exerciseRouter);
-app.use("/auth/discord", discordAuthRouter);
+app.use("/api/auth/discord", discordAuthRouter);
 app.use("/api/calendar", calendarRouter);
 app.use("/api/image", imageRouter);
 app.use("/api/recaptcha", recaptchaRouter);
