@@ -2,10 +2,11 @@
 
 
 .container {
-    margin-top: 15px;
-    height: 2em;
-    padding: 1em;
-    
+    margin-top: 25px;
+    min-height: 30px;
+    height: 2vh;
+    padding: 5px;
+    width: 100%;
 }
 
 .brand {

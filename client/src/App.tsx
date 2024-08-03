@@ -41,10 +41,9 @@ function App() {
       <BrowserRouter>
         <Header 
           loggedUser={loggedInUser}
-          onLoginClicked={DiscordUserApi.loginWithDiscord}
           onLogoutSuccessful={() => setLoggedInUser(null)}
         />
-
+        <div className="headerMargin"></div>
         <div className='mainContainer'>
           <div className='content'>
             
